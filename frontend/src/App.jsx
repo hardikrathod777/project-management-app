@@ -4,7 +4,6 @@ import Register from "./components/Register";
 import Dashboard from "./components/Dashboard";
 import Projects from "./components/Projects";
 import Form from "./components/Form";
-import Payments from "./components/Payments";
 import Chart from "./components/Chart";
 
 function PrivateRoute({ children }) {
@@ -23,7 +22,6 @@ function App() {
         <Route path="projects" element={<PrivateRoute><Projects /></PrivateRoute>} />
         <Route path="addproject" element={<PrivateRoute><Form /></PrivateRoute>} />
         <Route path="projects/edit/:id" element={<PrivateRoute><Form /></PrivateRoute>} />
-        <Route path="payments" element={<PrivateRoute><Payments /></PrivateRoute>} />
       </Route>
     </Routes>
   );

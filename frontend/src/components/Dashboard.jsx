@@ -1,16 +1,17 @@
 import { Link, Outlet, useNavigate } from "react-router-dom";
 import { useEffect, useState } from 'react';
 import axios from 'axios';
+import { FaChartPie, FaProjectDiagram, FaPlusCircle, FaDollarSign } from 'react-icons/fa'; // Importing icons
 
 function AdminDashboard() {
     const [data, setData] = useState([]);
     const [error, setError] = useState(null);
     const navigate = useNavigate();
 
-    const handlelogout = () => {
+    const handleLogout = () => {
         localStorage.removeItem("token");
         navigate("/login");
-    }
+    };
 
     useEffect(() => {
         const fetchData = async () => {
@@ -32,39 +33,44 @@ function AdminDashboard() {
     }, []);
 
     return (
-        <div className="flex h-screen flex-col">
-            <header className="flex items-center justify-between bg-gradient-to-br from-teal-500 to-blue-500 text-white px-6 py-4 shadow-md">
-                <h1 className="flex items-center font-extrabold text-3xl">
-                    <span className="text-5xl text-black">F</span>
-                    <span className="text-3xl text-neutral-100 ml-1">reelancer</span>
+        <div className="flex h-screen flex-col bg-gradient-to-b from-gray-800 to-gray-600">
+            <header className="flex items-center justify-between bg-gray-900 text-white px-6 py-4 shadow-md border-b border-gray-700">
+                <h1 className="flex items-center font-bold text-2xl">
+                    <span className="text-blue-600">Project Management</span>
                 </h1>
 
-                <button onClick={() => handlelogout()} className="text-red-200 text-lg hover:text-red-100 font-bold transition duration-200">
-                    Logout
+                <button onClick={handleLogout} className="text-purple-500 text-lg font-semibold hover:text-purple-600 transition duration-200">
+                    Sign Out
                 </button>
             </header>
 
             <div className="flex flex-1">
-                <aside className="w-1/5 bg-gradient-to-br from-teal-500 to-blue-500 text-white p-6 border-r border-teal-600 py-10">
+                <aside className="w-1/6 bg-black text-gray-300 p-6 border-r border-gray-600">
                     <nav>
-                        <ul className="space-y-8 text-center">
+                        <ul className="space-y-4">
                             <li>
-                                <Link to="/" className="block text-xl font-bold hover:text-teal-200 transition duration-150">Dashboard</Link>
+                                <Link to="/" className="flex items-center text-lg font-medium hover:text-purple-500 transition duration-150">
+                                    <FaChartPie className="mr-2" />
+                                    Overview
+                                </Link>
                             </li>
                             <li>
-                                <Link to="/projects" className="block text-xl font-bold hover:text-teal-200 transition duration-150">Projects</Link>
+                                <Link to="/projects" className="flex items-center text-lg font-medium hover:text-purple-500 transition duration-150">
+                                    <FaProjectDiagram className="mr-2" />
+                                    Manage Projects
+                                </Link>
                             </li>
                             <li>
-                                <Link to="/addproject" className="block text-xl font-bold hover:text-teal-200 transition duration-150">Add Project</Link>
-                            </li>
-                            <li>
-                                <Link to="/payments" className="block text-xl font-bold hover:text-teal-200 transition duration-150">Payments</Link>
+                                <Link to="/addproject" className="flex items-center text-lg font-medium hover:text-purple-500 transition duration-150">
+                                    <FaPlusCircle className="mr-2" />
+                                    Create New Project
+                                </Link>
                             </li>
                         </ul>
                     </nav>
                 </aside>
 
-                <main className="flex-1 p-8 bg-gray-50 overflow-y-auto">
+                <main className="flex-1 p-8 bg-gray-100 overflow-y-auto sign-up-bg">
                     <Outlet />
                 </main>
             </div>

@@ -1,15 +1,10 @@
 import { useEffect, useState } from "react";
 import api from "../api";
 import { useNavigate } from "react-router-dom";
-import { FaEdit, FaTrash, FaRegCheckCircle } from "react-icons/fa";
 
 function Projects() {
     const [projects, setProjects] = useState([]);
     const [error, setError] = useState(null);
-    const [selectedProject, setSelectedProject] = useState(null);
-    const [showStatusModal, setShowStatusModal] = useState(false);
-    const [amount, setAmount] = useState("");
-    const [status, setStatus] = useState("unpaid");
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -26,6 +21,18 @@ function Projects() {
         fetchProjects();
     }, []);
 
+    useEffect(() => {
+        const savedProjects = JSON.parse(localStorage.getItem('projects')) || [];
+        if (savedProjects.length) {
+            setProjects((prevProjects) =>
+                prevProjects.map((proj) => {
+                    const savedProj = savedProjects.find((p) => p._id === proj._id);
+                    return savedProj ? savedProj : proj;
+                })
+            );
+        }
+    }, []);
+
     const handleEdit = (id) => {
         navigate(`edit/${id}`);
     };
@@ -33,38 +40,37 @@ function Projects() {
     const handleDelete = async (id) => {
         try {
             await api.delete(`/api/projects/${id}`);
-            window.alert("Project deleted");
-            setProjects(projects.filter((project) => project.id !== id));
+            setProjects(projects.filter((project) => project._id !== id));
         } catch (error) {
             console.error("Error deleting project");
         }
     };
 
-    const handleStatusClick = (project) => {
-        setSelectedProject(project);
-        setAmount("");
-        setStatus("unpaid");
-        setShowStatusModal(true);
-    };
-
-    const handleStatusSave = async () => {
+    const toggleText = async (projectId) => {
         try {
-            await api.post(`/api/payments/add`, {
-                projectId: selectedProject._id,
-                amount,
-                status,
-            });
-            setShowStatusModal(false);
-            window.alert("Project status updated");
-            navigate('/payments');
+            const response = await api.patch(`/api/projects/${projectId}/toggleStatus`);
+            
+            // Update the local state with the new project status
+            setProjects((prevProjects) =>
+                prevProjects.map((proj) =>
+                    proj._id === projectId ? { ...proj, status: response.data.status } : proj
+                )
+            );
+    
+            // Update localStorage with the new projects data
+            const updatedProjects = projects.map((proj) =>
+                proj._id === projectId ? { ...proj, status: response.data.status } : proj
+            );
+            localStorage.setItem('projects', JSON.stringify(updatedProjects));
         } catch (error) {
             console.error("Error updating project status:", error);
         }
     };
+    
 
     return (
-        <div className="container mx-auto px-4 py-8">
-            <h2 className="text-4xl font-bold text-center text-gray-900 mb-12">
+        <div className="container mx-auto px-4 py-8 bg-gray-900 text-white ds-box">
+            <h2 className="text-4xl font-bold text-center mb-12">
                 Our Projects
             </h2>
 
@@ -74,107 +80,47 @@ function Projects() {
                 {projects.length > 0 ? (
                     projects.map((project) => (
                         <div
-                            key={project.id}
-                            className="max-w-sm w-full bg-white rounded-lg shadow-lg transform transition-transform hover:scale-105 hover:shadow-xl"
+                            key={project._id}
+                            className="max-w-sm w-full rounded-lg shadow-lg bg-gray-800 transform transition-transform hover:scale-105 hover:shadow-xl"
                         >
                             <div className="p-6 space-y-4">
-                                <h3 className="text-3xl font-semibold text-gray-800">
+                                <h3 className="text-3xl font-semibold">
                                     {project.name}
                                 </h3>
-                                <p className="text-gray-700 leading-relaxed break-words">
+                                <p className="leading-relaxed break-words">
                                     {project.description}
                                 </p>
-                                <p className="text-2xl font-semibold text-green-700">
+                                <p className="text-2xl font-semibold text-green-400">
                                     ₹{project.budget.toLocaleString()}
                                 </p>
 
                                 <div className="mt-6 flex justify-between space-x-3">
                                     <button
                                         onClick={() => handleEdit(project._id)}
-                                        className="flex-1 bg-blue-600 text-white rounded-md font-medium hover:bg-blue-700 transition duration-200"
+                                        className="flex-1 border border-yellow-600 text-yellow-600 rounded-md font-medium hover:bg-yellow-600 hover:text-white transition duration-200 py-2"
                                     >
-                                        <FaEdit className="mr-2" /> Edit
+                                        Edit
                                     </button>
                                     <button
                                         onClick={() => handleDelete(project._id)}
-                                        className="flex-1 bg-red-500 text-white py-2 rounded-md font-medium hover:bg-red-600 transition duration-200"
+                                        className="flex-1 border border-red-600 text-red-600 rounded-md font-medium hover:bg-red-600 hover:text-white transition duration-200 py-2"
                                     >
-                                        <FaTrash className="mr-2" /> Delete
+                                        Delete
                                     </button>
                                     <button
-                                        onClick={() => handleStatusClick(project)}
-                                        className="flex-1 bg-yellow-500 text-white py-2 rounded-md font-medium hover:bg-yellow-600 transition duration-200"
+                                        onClick={() => toggleText(project._id)}
+                                        className={`flex-1 rounded-md font-medium transition duration-200 py-2 ${project.status === 'paid' ? 'bg-green-600 text-white hover:bg-green-500' : 'bg-red-600 text-white hover:bg-red-500'}`}
                                     >
-                                        <FaRegCheckCircle className="mr-2" /> Status
+                                        {project.status === 'paid' ? 'Paid' : 'Unpaid'}
                                     </button>
                                 </div>
                             </div>
                         </div>
                     ))
                 ) : (
-                    <p className="text-center text-gray-500">No projects available.</p>
+                    <p className="text-center">No projects available.</p>
                 )}
             </div>
-
-            {showStatusModal && (
-                <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-                    <div className="bg-white p-8 rounded-md max-w-sm w-full">
-                        <h3 className="text-2xl font-bold mb-4">Update Project Status</h3>
-
-                        <div className="mb-4">
-                            <input
-                                type="text"
-                                value={selectedProject._id}
-                                readOnly
-                                className="w-full p-2 border rounded-md bg-gray-100"
-                                hidden
-                            />
-                        </div>
-
-                        <div className="mb-4">
-                            <label className="block text-gray-700 font-medium mb-2">
-                                Amount
-                            </label>
-                            <input
-                                type="number"
-                                value={amount}
-                                onChange={(e) => setAmount(e.target.value)}
-                                className="w-full p-2 border rounded-md"
-                                placeholder="Enter amount"
-                            />
-                        </div>
-
-                        <div className="mb-4">
-                            <label className="block text-gray-700 font-medium mb-2">
-                                Status
-                            </label>
-                            <select
-                                value={status}
-                                onChange={(e) => setStatus(e.target.value)}
-                                className="w-full p-2 border rounded-md"
-                            >
-                                <option value="unpaid">Unpaid</option>
-                                <option value="paid">Paid</option>
-                            </select>
-                        </div>
-
-                        <div className="flex justify-end space-x-3">
-                            <button
-                                onClick={() => setShowStatusModal(false)}
-                                className="px-4 py-2 bg-gray-300 rounded-md hover:bg-gray-400"
-                            >
-                                Cancel
-                            </button>
-                            <button
-                                onClick={handleStatusSave}
-                                className="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600"
-                            >
-                                Save
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )}
         </div>
     );
 }

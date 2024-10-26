@@ -1,7 +1,7 @@
-const Project = require('../models/Project');
-const { parseCSV, generateCSV } = require('../config/csv');
 
-exports.createProject = async (req, res) => {
+import Project from '../models/Project.js'; 
+
+export const createProject = async (req, res) => {
     try {
         const { name, description, status, budget } = req.body;
         const project = new Project({ name, description, status, budget });
@@ -12,7 +12,7 @@ exports.createProject = async (req, res) => {
     }
 };
 
-exports.getProjects = async (req, res) => {
+export const getProjects = async (req, res) => {
     try {
         const projects = await Project.find();
         res.json(projects);
@@ -21,7 +21,7 @@ exports.getProjects = async (req, res) => {
     }
 };
 
-exports.getProjectById = async (req, res) => {
+export const getProjectById = async (req, res) => {
     try {
         const project = await Project.findById(req.params.id);
         if (!project) return res.status(404).json({ error: 'Project not found' });
@@ -31,7 +31,7 @@ exports.getProjectById = async (req, res) => {
     }
 };
 
-exports.updateProject = async (req, res) => {
+export const updateProject = async (req, res) => {
     try {
         const { name, description, status, budget } = req.body;
         const project = await Project.findByIdAndUpdate(
@@ -46,7 +46,7 @@ exports.updateProject = async (req, res) => {
     }
 };
 
-exports.deleteProject = async (req, res) => {
+export const deleteProject = async (req, res) => {
     try {
         const project = await Project.findByIdAndDelete(req.params.id);
         if (!project) return res.status(404).json({ error: 'Project not found' });
@@ -56,23 +56,17 @@ exports.deleteProject = async (req, res) => {
     }
 };
 
-exports.exportProjects = async (req, res) => {
+export const toggleProjectStatus = async (req, res) => {
     try {
-        const projects = await Project.find();
-        const csv = generateCSV(projects);
-        res.header('Content-Type', 'text/csv');
-        res.attachment('projects.csv').send(csv);
-    } catch (error) {
-        res.status(500).json({ error: 'Failed to export projects' });
-    }
-};
+        const project = await Project.findById(req.params.id);
+        if (!project) return res.status(404).json({ error: 'Project not found' });
 
-exports.importProjects = async (req, res) => {
-    try {
-        const projects = await parseCSV(req.file.path);
-        await Project.insertMany(projects);
-        res.json({ message: 'Projects imported successfully' });
+        // Toggle status
+        project.status = project.status === 'paid' ? 'unpaid' : 'paid';
+        await project.save();
+
+        res.json(project);
     } catch (error) {
-        res.status(500).json({ error: 'Failed to import projects' });
+        res.status(500).json({ error: 'Failed to update project status' });
     }
 };

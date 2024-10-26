@@ -1,11 +1,12 @@
-const User = require('../models/User');
-const jwt = require('jsonwebtoken');
-const bcrypt = require('bcryptjs');
+// userController.mjs
+import User from '../models/User.js'; 
+import jwt from 'jsonwebtoken';
+import bcrypt from 'bcryptjs';
 
-exports.register = async (req, res) => {
+export const register = async (req, res) => {
     const { username, email, password } = req.body;
     try {
-        const user = await User({ username, email, password });
+        const user = new User({ username, email, password });
         await user.save();
         res.status(201).json({ message: 'User registered successfully' });
     } catch (error) {
@@ -13,7 +14,7 @@ exports.register = async (req, res) => {
     }
 };
 
-exports.login = async (req, res) => {
+export const login = async (req, res) => {
     const { email, password } = req.body;
     try {
         const user = await User.findOne({ email });

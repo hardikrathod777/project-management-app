@@ -37,26 +37,25 @@ function Form() {
         try {
             if (isEditMode) {
                 await api.put(`/api/projects/${id}`, formData);
-                window.alert("Project updated successfully!");
+
             } else {
                 await api.post("/api/projects", formData);
-                window.alert("Project added successfully!");
+
             }
             navigate("/projects");
         } catch (error) {
             console.error("Error submitting form:", error);
-            window.alert("Failed to submit form. Please try again.");
         }
     };
 
     return (
-        <div className="max-w-lg mx-auto my-8 p-6 bg-white rounded-lg shadow-lg">
-            <h2 className="text-2xl font-bold mb-4 text-center">
+        <div className="max-w-lg mx-auto my-8 p-6 bg-gray-900 rounded-lg shadow-lg ds-box">
+            <h2 className="text-2xl font-bold mb-4 text-center text-white">
                 {isEditMode ? "Edit Project" : "Add Project"}
             </h2>
             <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
-                    <label htmlFor="name" className="block text-gray-700 font-medium mb-2">
+                    <label htmlFor="name" className="block text-gray-300 font-medium mb-2">
                         Project Name
                     </label>
                     <input
@@ -66,13 +65,13 @@ function Form() {
                         value={formData.name}
                         onChange={handleChange}
                         required
-                        className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full p-3 border border-gray-700 rounded-md bg-gray-800 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                         placeholder="Enter Project Name"
                     />
                 </div>
 
                 <div>
-                    <label htmlFor="description" className="block text-gray-700 font-medium mb-2">
+                    <label htmlFor="description" className="block text-gray-300 font-medium mb-2">
                         Description
                     </label>
                     <textarea
@@ -81,14 +80,14 @@ function Form() {
                         value={formData.description}
                         onChange={handleChange}
                         required
-                        className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full p-3 border border-gray-700 rounded-md bg-gray-800 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                         placeholder="Enter Project Description"
                         rows="4"
                     />
                 </div>
 
                 <div>
-                    <label htmlFor="budget" className="block text-gray-700 font-medium mb-2">
+                    <label htmlFor="budget" className="block text-gray-300 font-medium mb-2">
                         Budget
                     </label>
                     <input
@@ -98,14 +97,14 @@ function Form() {
                         value={formData.budget}
                         onChange={handleChange}
                         required
-                        className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full p-3 border border-gray-700 rounded-md bg-gray-800 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                         placeholder="Enter Budget Amount"
                     />
                 </div>
 
                 <button
                     type="submit"
-                    className="w-full py-3 bg-blue-500 text-white font-semibold rounded-md hover:bg-blue-600 transition duration-200"
+                    className="w-full py-3 bg-purple-500 text-white font-semibold rounded-md hover:bg-purple-600 transition duration-200"
                 >
                     {isEditMode ? "Update Project" : "Add Project"}
                 </button>
